@@ -1,0 +1,37 @@
+(symbol "RT6318C"
+  (property "Reference" "U" (at 0 8 0))
+  (property "Value" "RT6318C" (at 0 -8 0))
+
+  ;; LEFT SIDE (Inputs / Control)
+  (pin power_in line (at -10 6) (length 2)
+    (name "VIN") (number "5"))
+  (pin power_in line (at -10 4) (length 2)
+    (name "VCC") (number "11"))
+  (pin input line (at -10 2) (length 2)
+    (name "EN") (number "6"))
+  (pin output line (at -10 0) (length 2)
+    (name "LDO5") (number "12"))
+
+  ;; RIGHT SIDE (Power + Signals)
+  (pin output line (at 10 6) (length 2)
+    (name "PGOOD") (number "7"))
+  (pin input line (at 10 4) (length 2)
+    (name "BOOT") (number "1"))
+
+  ;; LX DOUBLE PIN
+  (pin passive line (at 10 2) (length 2)
+    (name "LX") (number "2"))
+  (pin passive line (at 10 1) (length 2)
+    (name "LX") (number "3"))
+
+  (pin output line (at 10 0) (length 2)
+    (name "VOUT") (number "10"))
+  (pin input line (at 10 -2) (length 2)
+    (name "FF") (number "9"))
+
+  ;; GROUNDS
+  (pin power_in line (at 10 -4) (length 2)
+    (name "AGND") (number "8"))
+  (pin power_in line (at 10 -6) (length 2)
+    (name "PGND") (number "4"))
+)

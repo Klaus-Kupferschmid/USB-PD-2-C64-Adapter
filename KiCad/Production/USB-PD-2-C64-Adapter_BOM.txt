@@ -1,0 +1,40 @@
+BOM (LCSC-ready)
+
+1. RT6318CGQUF – Buck Converter
+   Example: C6288609
+
+2. Inductor 1uH 10A
+   Example: C15949
+
+3. Input MLCC 10uF 25V X7R 0805
+   Example: C440198
+
+4. Bulk Input Cap 47uF 25V
+   Example: C178882
+
+5. Output MLCC 22uF 10V X7R 0805 (x4)
+   Example: C45783
+
+6. Output Polymer 150uF 10V
+   Example: C12530
+
+7. Post LC Filter Inductor 1.5uH
+   Example: C15949
+
+8. Post Filter Cap 220uF
+   Example: C12530
+
+9. Series Resistor 0.03 Ohm 1206
+   Example: C25110
+
+10. SCR BT151 equivalent
+    Example: C2563
+
+11. Z-Diode 5.6V BZT52C5V6
+    Example: C31673
+
+12. Gate Resistor 1k 0805
+    Example: C17513
+
+13. TVS Diode SMBJ24A
+    Example: C13982

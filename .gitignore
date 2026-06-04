@@ -1,0 +1,20 @@
+# KiCad Backup files
+*-backups/
+*.bak
+*~
+\#*\#
+*.lck
+*.kicad_prl
+
+# KiCad Local Settings
+fp-info-cache
+
+# VSCode local history
+.history/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Gerber/Production temp files (keep Production folder, ignore temp)
+*.tmp
