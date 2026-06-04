@@ -81,7 +81,7 @@ KiCad/
 
 ### Elektrische Spezifikationen
 - **5V Zweig:**
-  - Ausgangsspannung: 5.0V ±5% (4.75V - 5.25V)
+  - Ausgangsspannung: 5.0V ±3% (4.85V - 5.15V)
   - Ausgangsstrom: 5A kontinuierlich
   - Eingangsspannung: 20V von USB-PD
   - Ripple: <50mV pp
