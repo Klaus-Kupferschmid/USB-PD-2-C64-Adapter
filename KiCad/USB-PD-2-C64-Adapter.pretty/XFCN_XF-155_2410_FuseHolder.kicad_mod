@@ -1,0 +1,84 @@
+(footprint "XFCN_XF-155_2410_FuseHolder"
+	(version 20240108)
+	(generator "hand")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "XFCN XF-155 SMD fuse holder (bracket type) for 2410 fuse, 15A / 500V AC. Land pattern taken from manufacturer drawing XFCN DWG 0769-82001899 rev A1 (2024-04-17): pad 4.24 x 3.81 mm, inner gap 2.13 mm, center pitch 6.37 mm, outer span 10.63 mm. Body 10.5 x 5.1 mm, height 3.8 mm.")
+	(tags "fuse holder 2410 XF-155 XFCN SMD bracket")
+	(attr smd)
+	(fp_text reference "REF**"
+		(at 0 -3.6 0)
+		(layer "F.SilkS")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text value "XFCN_XF-155"
+		(at 0 3.6 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_rect
+		(start -5.25 -2.55)
+		(end 5.25 2.55)
+		(stroke (width 0.1) (type solid))
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -5.25 -2.55)
+		(end 5.25 -2.55)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -5.25 2.55)
+		(end 5.25 2.55)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_circle
+		(center -6.0 -2.55)
+		(end -5.85 -2.55)
+		(stroke (width 0.2) (type solid))
+		(fill solid)
+		(layer "F.SilkS")
+	)
+	(fp_rect
+		(start -5.55 -2.85)
+		(end 5.55 2.85)
+		(stroke (width 0.05) (type solid))
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(pad "1" smd rect
+		(at -3.185 0)
+		(size 4.24 3.81)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at 3.185 0)
+		(size 4.24 3.81)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(model "${KIPRJMOD}/USB-PD-2-C64-Adapter.3dshapes/Fuse_Holder_Littelfuse_SMF_OMNI-BLOK_for_NANO_fuses.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

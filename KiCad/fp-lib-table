@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "USB-PD-2-C64-Adapter")(type "KiCad")(uri "${KIPRJMOD}/USB-PD-2-C64-Adapter.pretty")(options "")(descr "Project-specific footprints"))
+)

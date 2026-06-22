@@ -1,0 +1,66 @@
+(footprint "SolderPad_1x02_SMD_P5.0mm"
+	(version 20240108)
+	(generator "hand")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Generic 2-pad SMD solder pads for wire connection (power, up to ~3 A). Pad 3.0 x 4.0 mm, pitch 5.0 mm. Used for J1 (15 V PD input) and J2 (C64 5 V output).")
+	(tags "solder pad wire smd power")
+	(attr smd)
+	(fp_text reference "REF**"
+		(at 0 -3.1 0)
+		(layer "F.SilkS")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text value "SolderPad_1x02_SMD_P5.0mm"
+		(at 0 3.1 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_line
+		(start -4.25 -2.25)
+		(end 4.25 -2.25)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -4.25 2.25)
+		(end 4.25 2.25)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_circle
+		(center -4.7 -2.25)
+		(end -4.55 -2.25)
+		(stroke (width 0.2) (type solid))
+		(fill solid)
+		(layer "F.SilkS")
+	)
+	(fp_rect
+		(start -4.5 -2.5)
+		(end 4.5 2.5)
+		(stroke (width 0.05) (type solid))
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(pad "1" smd rect
+		(at -2.5 0)
+		(size 3.0 4.0)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+	(pad "2" smd rect
+		(at 2.5 0)
+		(size 3.0 4.0)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+	)
+)
