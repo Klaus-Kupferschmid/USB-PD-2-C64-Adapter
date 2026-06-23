@@ -132,7 +132,7 @@ USB-C PD 15V/3A
    |
    +-- optional gedämpfter Post-LC nur nach Stabilitaetspruefung
    |
-  +-- U2 STEF05SGR 5V-eFuse, TSOT23-8L; 3A Dauerziel, RLim zwischen ILim und Source/VOUT fuer Ueberlastgrenze noch nach Datenblatt festlegen
+  +-- U6 TPS16630PWPR zentrale 15V-eFuse/Load-Switch; schaltet VIN_BUCK und spaeter den 9VAC-Zweig erst nach PD-Freigabe/Steuerlogik frei
    |
    +-- R_SENSE optional 5mΩ..10mΩ Kelvin, nicht 30mΩ
    |
@@ -160,7 +160,7 @@ AP64500-Startwerte fuer 15V-PD auf 5V/3A mit Ripple-Ziel <40mVpp:
 - **Ausgang Bulk:** **150uF bis 220uF Polymer/Low-ESR 10V** nahe am DIN-/Lastanschluss, aber Stabilitaet mit Kompensation pruefen.
 - **Kompensation erster 1.5MHz-Entwurf:** Bei ca. 45uF bis 60uF effektiver Ausgangskapazitaet und Ziel-Crossover grob 30kHz als Start: R5 **31.6kΩ bis 42.2kΩ**, C5 **1.5nF**, C6 **4.7pF bis 6.8pF optional**, C4 Feedforward **10pF bis 22pF optional**. Das 500kHz-Datenblattbeispiel bleibt Referenz: R5 15.8kΩ, C5 2.7nF, C6 39pF, C4 47pF. Endwerte erst nach Diodes-Rechner/Simulation und Messung festlegen.
 - **Input:** mindestens **2x 10uF X7R 35V/50V** direkt am IC plus Bulk 47uF..100uF. Input-RMS-Stromrating der Kondensatoren beachten. Als TVS-Startwert fuer den festgelegten 15V-AP64500-Zweig ist **SMBJ18A unidirektional, LCSC C353379** vorgesehen: VRWM 18V liegt oberhalb eines 15V-PD-Normalfalls inklusive Toleranz, VBR 22.1V, VC 29.2V bei Ipp 20.6A und 600W bei 10/1000us passen gut zur 40V-VIN-Grenze des AP64500. Die TVS muss zusammen mit Sicherung/eFuse und realer Pulsenergie validiert werden.
-- **Schutz:** AP64500-interne OVP liegt grob bei +10% und ist nicht ausreichend als alleiniger C64-Überspannungsschutz. U2 ist aktuell als **STEF05SGR/STEF05S 5V-eFuse im TSOT23-8L** vorgesehen; Symbol-Pinnamen/-nummern folgen der STEF05-Tabelle: `1 ILim`, `2 En/Fault`, `3 dV/dt`, `4 GND`, `5-6 Source/VOUT`, `7-8 VCC`. `En/Fault` beim STEF05 nicht direkt mit Pull-up betreiben; der Pin darf nur per Open-Drain/Open-Collector nach GND gezogen werden. TLV431/LMV431 braucht einen eigenen Kathoden-Pull-up/Arbeitsstrom und darf `En/Fault` nicht direkt treiben; im Schaltplan ist dafür U5 als separate OVP-Open-Collector-Stufe vorgesehen. Externe Crowbar/SCR-Option mit Trigger ca. 5.35V bis 5.45V und vorgeschaltetem Abschaltelement/eFuse beibehalten. Vor PCB-Freigabe: U5 konkret als Comparator-OD oder PNP+NPN-Inverter auslegen, LCSC-Nummern, RLim-Wert und optionalen dV/dt-Kondensatorwert aus dem STEF05-Datenblatt verifizieren.
+- **Schutz:** AP64500-interne OVP liegt grob bei +10% und ist nicht ausreichend als alleiniger C64-Überspannungsschutz. Aktuelle Architektur: **U6 TPS16630PWPR** als zentrale 15V-eFuse/Load-Switch hinter F1 und vor `VIN_BUCK`; der spaetere 9VAC-Zweig muss ebenfalls von dieser geschalteten Schiene versorgt werden. U3 **TPS3700DDCR** bleibt als 5V-OVP bei ca. 5.36V und zieht ueber `EFUSE_SHDN` U6-`SHDN` low; R13 zieht `EFUSE_SHDN` auf `CH224_VDD`, nicht auf 15V. U6-Startwerte: R14/R15/R16 = 274k/7.68k/20.0k fuer UVLO/OVP-Teiler mit LCSC C482818/C163419/C844676, R17 = 18k fuer ILIM, C16 = 22nF fuer dVdT, MODE bewusst offen fuer Latch-off. Werte und LCSC-C-Nummern vor PCB-Freigabe erneut gegen TPS1663-Datenblatt verifizieren.
 - **Messpflicht:** Ripple am C64-DIN-Stecker messen: 0.5A, 1.5A, 3A, Lastsprung und kleiner Leichtlastfall wegen PFM. Oszi mit kurzer Massefeder, Bandbreitenlimit dokumentieren.
 
 ### 9 VAC / 2 A Zweig (Inverter)
@@ -186,38 +186,61 @@ KiCad/
 
 ## Aktuelle BOM (verbindlich, Stand Schaltplan USB-PD-2-C64-Adapter.kicad_sch)
 
-Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C64-Adapter_BOM.csv` und den KiCad-Symbolen überein. Alle aktiven 5V-Zweig-Bauteile haben verifizierte LCSC-Nummern; offen sind nur die Interface-Stecker J1/J2.
+Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C64-Adapter_BOM.csv`, `Production/USB-PD-2-C64-Adapter_BOM.txt` und den KiCad-Symbolen überein. Die BOM enthält die Spalte **Baugruppe** mit den Werten `USB-PD Eingang`, `5VDC` und später `9VAC`. Die USB-PD-Eingangsteile sind im Schaltplan aktuell bewusst **unverdrahtet** platziert; Verbindungen werden manuell gesetzt.
 
-| Ref | Wert | Funktion | Footprint | LCSC | Menge |
-| --- | --- | --- | --- | --- | --- |
-| U1 | AP64500SP-13 | Synchron-Buck 3.8-40V/5A | USB-PD-2-C64-Adapter:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.62x3.51mm_ThermalVias | C2070920 | 1 |
-| U2 | STEF05SGR | 5V-eFuse, TSOT23-8 latch-off (Marking 05SL) | Package_TO_SOT_SMD:TSOT-23-8 | C5271105 | 1 |
-| U3 | TPS3700DDCR | Fenster-Komparator OVP (400mV Ref, Dual-OD) | Package_TO_SOT_SMD:SOT-23-6 | C33002 | 1 |
-| L1 | 2.2uH Sunlord MWSA0603S | Buck-Induktor (Isat 10A, IRMS 9.5A, DCR 15mΩ) | Inductor_SMD:L_Sunlord_MWSA0603S | C408445 | 1 |
-| D1 | SMBJ18A | Eingangs-TVS 18V VRWM, 600W | Diode_SMD:D_SMB | C353379 | 1 |
-| FH1 | XFCN XF-155 | 2410/6125 SMD-Sicherungshalter (hält F1) | USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder | C41371860 | 1 |
-| F1 | JFC2410-1400TS | 4A/250V 2410-Sicherung | USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder | C136386 | 1 |
-| C1 | 47uF | Eingangs-Bulk Polymer | Capacitor_SMD:CP_Elec_6.3x5.8 | C494513 | 1 |
-| C2, C3 | 10uF X7R | Eingangs-MLCC an VIN | Capacitor_SMD:C_1210_3225Metric | C138687 | 2 |
-| C4 | 100nF | Bootstrap BST-SW | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
-| C5 | 1.5nF | Kompensation COMP | Capacitor_SMD:C_0603_1608Metric | C710892 | 1 |
-| C6, C7, C8, C9, C13 | 22uF X7R | Ausgangs-MLCC | Capacitor_SMD:C_1210_3225Metric | C2918511 | 5 |
-| C10 | 220uF | Ausgangs-Bulk Polymer | Capacitor_SMD:CP_Elec_6.3x7.7 | C46550461 | 1 |
-| C11 | 100nF | Entkopplung | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
-| C12 | 1nF | Filter/Feedforward | Capacitor_SMD:C_0603_1608Metric | C507408 | 1 |
-| R1 | 66.5k | RT (fSW ~1.5MHz) | Resistor_SMD:R_0603_1608Metric | C218113 | 1 |
-| R2 | 39.2k | Kompensation/Bias | Resistor_SMD:R_0603_1608Metric | C217999 | 1 |
-| R3 | 105k 0.1% | FB oben | Resistor_SMD:R_0603_1608Metric | C667149 | 1 |
-| R4 | 20.0k 0.1% | FB unten → Vout = 0.8V·(1+105/20) = 5.000V | Resistor_SMD:R_0603_1608Metric | C844676 | 1 |
-| R5 | 124k 0.1% | OVP oben (TPS3700) | Resistor_SMD:R_0603_1608Metric | C861097 | 1 |
-| R6 | 10k 0.1% | OVP unten → Auslösung ~5.36V | Resistor_SMD:R_0603_1608Metric | C844890 | 1 |
-| R7 | 33 | Gate/Serie | Resistor_SMD:R_0603_1608Metric | C23140 | 1 |
-| J1 | 15V/3A PD-Eingang | Interface-Stecker (offen) | TBD | TBD | 1 |
-| J2 | C64 DIN 5V-Pins | DIN-7 Ausgang | Connector_DIN:DIN-7 | TBD | 1 |
+| Ref | Wert | Baugruppe | Funktion | Footprint | LCSC | Menge |
+| --- | --- | --- | --- | --- | --- | --- |
+| J3 | SHOU HAN TYPE-C16PIN | USB-PD Eingang | USB-C-Buchse 16P, 30V, 3A | USB-PD-2-C64-Adapter:TYPE-C16PIN_C393939 | C393939 | 1 |
+| U4 | CH224K | USB-PD Eingang | USB-PD Sink Controller, 15V-Anforderung | USB-PD-2-C64-Adapter:CH224K_ESSOP-10-150mil-1mm | C970725 | 1 |
+| U5 | TPD2S300YFFR | USB-PD Eingang | USB-C CC Short-to-VBUS- und IEC-ESD-Schutz | USB-PD-2-C64-Adapter:TPD2S300YFFR_DSBGA-9 | C2650411 | 1 |
+| U6 | TPS16630PWPR | USB-PD Eingang | Zentrale 15V-eFuse/Load-Switch fuer VIN_BUCK und spaeter 9VAC | Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm | TBD | 1 |
+| C16 | 22nF X7R 50V | USB-PD Eingang | U6 dVdT-Softstart-Kondensator, Startwert | Capacitor_SMD:C_0603_1608Metric | TBD | 1 |
+| R8 | 56k 1% | USB-PD Eingang | CH224K CFG1 nach GND fuer 15V | Resistor_SMD:R_0603_1608Metric | C114630 | 1 |
+| R9 | 1k 1% | USB-PD Eingang | CH224K VDD-Zufuehrung | Resistor_SMD:R_1206_3216Metric | C131398 | 1 |
+| R10 | 2.2k 1% | USB-PD Eingang | Gruene 15V-PD-Status-LED | Resistor_SMD:R_0603_1608Metric | C114662 | 1 |
+| R11 | 1M 1% | USB-PD Eingang | AP64500 EN/UVLO oben, Startwert | Resistor_SMD:R_0603_1608Metric | C105578 | 1 |
+| R12 | 100k 1% | USB-PD Eingang | AP64500 EN/UVLO unten, Startwert | Resistor_SMD:R_0603_1608Metric | C14675 | 1 |
+| R13 | 100k 1% | USB-PD Eingang | U6 SHDN Pull-up nach CH224_VDD | Resistor_SMD:R_0603_1608Metric | C14675 | 1 |
+| R14 | 274k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler oben, Startwert | Resistor_SMD:R_0603_1608Metric | C482818 | 1 |
+| R15 | 7.68k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler Mitte, Startwert | Resistor_SMD:R_0603_1608Metric | C163419 | 1 |
+| R16 | 20.0k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler unten, Startwert | Resistor_SMD:R_0603_1608Metric | C844676 | 1 |
+| R17 | 18k 1% | USB-PD Eingang | U6 ILIM-Widerstand, Startwert | Resistor_SMD:R_0603_1608Metric | TBD | 1 |
+| C14 | 1uF X7R 25V | USB-PD Eingang | CH224K VDD-Stuetzung | Capacitor_SMD:C_0603_1608Metric | C29936 | 1 |
+| C15 | 100nF X7R 50V | USB-PD Eingang | TPD2S300 VBIAS-Stuetzung | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| D2 | KT-0603G gruen | USB-PD Eingang | Gruene 0603 15V-PD-Status-LED, A=2/K=1 | USB-PD-2-C64-Adapter:KT-0603G_C12624 | C12624 | 1 |
+| J1 | 2-pin 2.54mm DNP | USB-PD Eingang | Labor-/Testeingang, nicht normal bestueckt | Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical | DNP | 1 |
+| D1 | SMBJ18A | USB-PD Eingang | Eingangs-TVS 18V VRWM, 600W | Diode_SMD:D_SMB | C353379 | 1 |
+| FH1 | XFCN XF-155 | USB-PD Eingang | 2410/6125 SMD-Sicherungshalter (hält F1) | USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder | C41371860 | 1 |
+| F1 | JFC2410-1400TS | USB-PD Eingang | 4A/250V 2410-Sicherung | USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder | C136386 | 1 |
+| C1 | 47uF | USB-PD Eingang | Eingangs-Bulk Polymer | Capacitor_SMD:CP_Elec_6.3x5.8 | C494513 | 1 |
+| C2, C3 | 10uF X7R | USB-PD Eingang | Eingangs-MLCC an VIN | Capacitor_SMD:C_1210_3225Metric | C138687 | 2 |
+| U1 | AP64500SP-13 | 5VDC | Synchron-Buck 3.8-40V/5A | USB-PD-2-C64-Adapter:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.62x3.51mm_ThermalVias | C2070920 | 1 |
+| U3 | TPS3700DDCR | 5VDC | Fenster-Komparator OVP (400mV Ref, Dual-OD) | Package_TO_SOT_SMD:SOT-23-6 | C33002 | 1 |
+| L1 | 2.2uH Sunlord MWSA0603S | 5VDC | Buck-Induktor (Isat 10A, IRMS 9.5A, DCR 15mΩ) | Inductor_SMD:L_Sunlord_MWSA0603S | C408445 | 1 |
+| C4 | 100nF | 5VDC | Bootstrap BST-SW | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| C5 | 1.5nF | 5VDC | Kompensation COMP | Capacitor_SMD:C_0603_1608Metric | C710892 | 1 |
+| C6, C7, C8, C9, C13 | 22uF X7R | 5VDC | Ausgangs-MLCC | Capacitor_SMD:C_1210_3225Metric | C2918511 | 5 |
+| C10 | 220uF | 5VDC | Ausgangs-Bulk Polymer | Capacitor_SMD:CP_Elec_6.3x7.7 | C46550461 | 1 |
+| C11 | 100nF | 5VDC | Entkopplung | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| C12 | 1nF | 5VDC | Filter/Feedforward | Capacitor_SMD:C_0603_1608Metric | C507408 | 1 |
+| R1 | 66.5k | 5VDC | RT (fSW ~1.5MHz) | Resistor_SMD:R_0603_1608Metric | C218113 | 1 |
+| R2 | 39.2k | 5VDC | Kompensation/Bias | Resistor_SMD:R_0603_1608Metric | C217999 | 1 |
+| R3 | 105k 0.1% | 5VDC | FB oben | Resistor_SMD:R_0603_1608Metric | C667149 | 1 |
+| R4 | 20.0k 0.1% | 5VDC | FB unten, Vout = 5.000V | Resistor_SMD:R_0603_1608Metric | C844676 | 1 |
+| R5 | 124k 0.1% | 5VDC | OVP oben (TPS3700) | Resistor_SMD:R_0603_1608Metric | C861097 | 1 |
+| R6 | 10k 0.1% | 5VDC | OVP unten, Auslösung ~5.36V | Resistor_SMD:R_0603_1608Metric | C844890 | 1 |
+| R7 | 33 | 5VDC | Gate/Serie | Resistor_SMD:R_0603_1608Metric | C23140 | 1 |
+| J2 | C64 DIN 5V-Pins | 5VDC | DIN-7 Ausgang | Connector_DIN:DIN-7 | TBD | 1 |
+
+**Footprint-/3D-Hinweis USB-PD-Eingang:** `TYPE-C16PIN_C393939` ist ein projektlokaler Startfootprint mit lokalem STEP-Modell. `CH224K_ESSOP-10-150mil-1mm` ist ein projektlokaler Footprint fuer CH224K ESSOP10/C970725, gegen `Datasheet/CH224DS1.pdf` geprüft: 3.9mm Body-Breite, ca. 5.0mm Body-Laenge, 6.0mm Gesamtbreite mit Pins und 1.00mm Pitch; als 3D-Modell wird das KiCad-Standardmodell `SSOP-10-1EP_3.9x4.9mm_P1mm_EP2.1x3.3mm.step` verwendet, nicht das fruehere falsche TSSOP-10-3x3mm/0.5mm-Modell. `TPD2S300YFFR_DSBGA-9` ist ein projektlokaler Footprint fuer TI YFF/DSBGA-9 mit 0.4mm Pitch, 0.23mm Pads und lokalem VRML-3D-Modell `TPD2S300YFFR_DSBGA-9.wrl`. JLCPCB-PCBA nennt Fine-Pitch/BGA-Bestueckung ab >=0.35mm Pitch; die 0.4mm-YFF-Bestueckung ist daher grundsaetzlich plausibel, aber das Routing ist eng: zwischen 0.23mm-Pads bleiben nur ca. 0.17mm Kupferabstand, deshalb U5 mit feinen Design-Rules, kurzen Top-Layer-Ausbruechen, sauberer Loetstoppmaske/Paste und JLC-DFM-Check pruefen. Vor PCB-Freigabe müssen Padgeometrie, Gehäuseumriss, Höhenmodell und Lötmasken/Paste mit den Herstellerdatenblättern geprüft werden. Die USB-PD-Teile wurden initial bewusst unverdrahtet platziert; die CC-Schutzverdrahtung muss weiterhin manuell/gezielt geprueft werden.
+
+**Hinweis USB-C/CC-Schutz U5:** U5 ist jetzt **TPD2S300YFFR/C2650411** statt USBLC6-2SC6. Grund: USBLC6 ist ein 5V-USB2-ESD-Baustein und sein VBUS-Referenzpin darf nicht an den 15V-PD-VBUS. TPD2S300 ist ein aktiver USB-C-CC-Schutz mit Short-to-VBUS-Isolation und IEC-ESD-Schutz. Anschlusspunkte: `C_CC1/C_CC2` an die USB-C-Buchse, `CC1/CC2` an CH224K, `GND` an Board-GND, `VBIAS` an C15 100nF/50V nach GND, `VPWR` und `VM` an die CH224K-`VDD`-Schiene. CH224K-`VDD` ist laut Datenblatt beim CH224K ein interner 3.3V-Shunt-Regler mit 3.24V bis 3.36V und bis 30mA Parallel-Sink-Faehigkeit; TPD2S300 liegt mit Mikroampere-Versorgung deutlich darunter. `FLT` ist Open-Drain und kann optional an eine spaetere Diagnose/PG-Logik, sonst offen lassen. DSBGA-9 ist nicht handloetfreundlich; fuer Handaufbau waere ein rein passiver TVS einfacher, schuetzt aber nicht gleichwertig gegen CC-Short-to-VBUS. Layout laut TI: Baustein so nah wie moeglich an die USB-C-Buchse, `C_CC1/C_CC2` ungeschuetzt kurz und gerade fuehren, scharfe Ecken vermeiden, VBIAS/VPWR/VM-Kondensatoren sehr nah und an solide Masse anbinden.
 
 **Designator-Mapping zur Erzähl-/Konzeptbeschreibung weiter unten:** FB-Teiler = R3 (oben) / R4 (unten); RT-Widerstand = R1; OVP-Teiler = R5 (oben) / R6 (unten); Kompensations-C = C5; Bootstrap-C = C4. Überspannungsschutz ist final als **U3 TPS3700DDCR Fenster-Komparator** umgesetzt, nicht mehr über die früher skizzierte TLV431/LMV431+Treiber-Variante. Hinweis: Die früheren AP64500-Startwerte im Fließtext (FB 115.8k/22.1k) sind durch die verbauten 105k/20.0k ersetzt (exakt 5.000V bei Vref 0.8V).
 
 **Hinweis Überspannungsschutz U3:** TPS3700DDCR liefert eine präzise 400mV-Referenz mit Fenster-Komparator und zwei Open-Drain-Ausgängen; mit R5/R6 = 124k/10k löst die OVP bei ca. 5.36V aus und liegt damit im geforderten Fenster 5.35-5.45V. Eine externe Crowbar/SCR-Option mit vorgeschaltetem Abschaltelement bleibt optional.
+
+**Hinweis zentrale EingangseFuse U6:** U6 ist als TPS16630PWPR-Symbol mit TI-PWP/HTSSOP-20-Pinout im Schaltplan eingebettet. Die USB-C-VBUS-Pins von J3 liegen direkt auf F1-Pin 1; `VBUS` ist das abgesicherte Netz hinter F1 und verbindet F1-Pin 2, U4-VBUS/R9, R14 und U6-IN 1/2/3 plus P_IN 6. `VIN_BUCK` liegt auf U6-OUT 18/19/20 und versorgt den AP64500-Eingang sowie den oberen R11-Anschluss des AP64500-EN/UVLO-Teilers. Der Teiler ist `VIN_BUCK -> R11 -> BUCK_EN -> R12 -> GND`, sodass der Buck erst von der geschalteten U6-Ausgangsschiene freigegeben wird. GND 9 und PowerPAD 21 liegen auf Board-GND. `dVdT` ist nicht mehr hart mit GND verbunden, sondern ueber C16 22nF nach GND gefuehrt. `SHDN` liegt auf `EFUSE_SHDN`; U3-`OUTB` kann diesen Knoten low ziehen, R13 zieht ihn auf `CH224_VDD` hoch. `UVLO`/`OVP` werden vom R14/R15/R16-Teiler an `VBUS` versorgt; Startziel ist ungefaehr Einschalten nur oberhalb 12V und Abschalten unterhalb 20V-PD. R17 18k ist der ILIM-Startwert. `MODE` ist bewusst offen, weil TPS1663 laut Datenblatt damit nach begrenzter Current-Limit-Zeit latch-off ausloest; Reset erfolgt per SHDN-Toggle oder Power-Cycle. `IMON`, `PGOOD` und `FLT` sind optional noch offen. Vor PCB-Freigabe Werte, LCSC-C-Nummern, TPS16630PWPR-Verfuegbarkeit und CH224K-PG-Polaritaet erneut pruefen.
 
 **Veraltete RT6318C-Ursprungs-BOM (NICHT mehr verwenden, nur Historie):** RT6318CGQUF C6288609, 1µH C15949, 10µF C440198, 47µF C178882, 22µF C45783, 150µF C12530, Post-LC 1.5µH/220µF, Shunt 0.03Ω C25110, SCR BT151 C2563, Z-Diode 5.6V C31673, Gate-R 1kΩ C17513. Diese Teile sind durch die obige AP64500-BOM ersetzt.
 
@@ -267,6 +290,7 @@ Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C6
 
 - Format: CSV für JLCPCB
 - Pfad: `Production/USB-PD-2-C64-Adapter_BOM.csv`
+- Pflichtspalte `Baugruppe` mit genau diesen Kategorien: `USB-PD Eingang`, `5VDC`, `9VAC`.
 - **Bei jeder Schaltplan-Änderung BOM aktualisieren!**
 
 ## Offene Fragen / TODOs

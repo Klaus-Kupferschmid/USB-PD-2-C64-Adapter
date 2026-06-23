@@ -1,0 +1,85 @@
+#VRML V2.0 utf8
+# Simple dimensionally-oriented placeholder model for TI TPD2S300YFFR DSBGA-9.
+# Authored in millimetres; KiCad footprint uses scale 0.3937 for mm-authored VRML.
+
+Transform {
+  translation 0 0 0.15
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0.08 0.08 0.08
+          specularColor 0.25 0.25 0.25
+          shininess 0.35
+        }
+      }
+      geometry Box { size 1.40 1.40 0.30 }
+    }
+  ]
+}
+
+Transform {
+  translation -0.40 -0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0 -0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0.40 -0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation -0.40 0 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0 0 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0.40 0 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation -0.40 0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0 0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+Transform {
+  translation 0.40 0.40 -0.06
+  children [
+    Shape { appearance Appearance { material Material { diffuseColor 0.82 0.70 0.36 specularColor 0.9 0.8 0.55 shininess 0.6 } } geometry Sphere { radius 0.115 } }
+  ]
+}
+
+# Pin-1 marker on package top near A1.
+Transform {
+  translation -0.48 -0.48 0.305
+  children [
+    Shape {
+      appearance Appearance { material Material { diffuseColor 0.95 0.95 0.95 } }
+      geometry Cylinder { radius 0.08 height 0.012 }
+    }
+  ]
+}

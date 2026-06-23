@@ -1,25 +1,42 @@
-Designator,Comment,Footprint,LCSC Part Number,Quantity
-C1,47uF polymer input bulk,Capacitor_SMD:CP_Elec_6.3x5.8,C494513,1
-"C2,C3",10uF X7R input MLCC,Capacitor_SMD:C_1210_3225Metric,C138687,2
-C4,100nF BST-SW bootstrap,Capacitor_SMD:C_0603_1608Metric,C14663,1
-C5,1.5nF compensation,Capacitor_SMD:C_0603_1608Metric,C710892,1
-"C6,C7,C8,C9,C13",22uF X7R output MLCC,Capacitor_SMD:C_1210_3225Metric,C2918511,5
-C10,220uF polymer output bulk,Capacitor_SMD:CP_Elec_6.3x7.7,C46550461,1
-C11,100nF,Capacitor_SMD:C_0603_1608Metric,C14663,1
-C12,1nF,Capacitor_SMD:C_0603_1608Metric,C507408,1
-D1,SMBJ18A TVS 18V VRWM,Diode_SMD:D_SMB,C353379,1
-F1,JFC2410-1400TS 4A 250V 2410 fuse,USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder,C136386,1
-FH1,XFCN XF-155 2410/6125 SMD fuse holder (holds F1),USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder,C41371860,1
-L1,2.2uH MWSA0603S Isat 10A IRMS 9.5A DCR 15mR,Inductor_SMD:L_Sunlord_MWSA0603S,C408445,1
-R1,66.5k RT 1.5MHz,Resistor_SMD:R_0603_1608Metric,C218113,1
-R2,39.2k,Resistor_SMD:R_0603_1608Metric,C217999,1
-R3,105k 0.1%,Resistor_SMD:R_0603_1608Metric,C667149,1
-R4,20.0k 0.1%,Resistor_SMD:R_0603_1608Metric,C844676,1
-R5,124k 0.1%,Resistor_SMD:R_0603_1608Metric,C861097,1
-R6,10k 0.1%,Resistor_SMD:R_0603_1608Metric,C844890,1
-R7,33,Resistor_SMD:R_0603_1608Metric,C23140,1
-U1,AP64500SP-13 synchronous buck 3.8V-40V 5A,USB-PD-2-C64-Adapter:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.62x3.51mm_ThermalVias,C2070920,1
-U2,STEF05SGR 5V eFuse TSOT23-8 latch-off,Package_TO_SOT_SMD:TSOT-23-8,C5271105,1
-U3,TPS3700DDCR window comparator OVP SOT-23-6,Package_TO_SOT_SMD:SOT-23-6,C33002,1
-J1,PD controller 15V/3A in (interface - to define),TBD,TBD,1
-J2,C64 DIN 5V pins,Connector_DIN:DIN-7,TBD,1
+Designator,Comment,Footprint,LCSC Part Number,Quantity,Baugruppe
+J3,SHOU HAN TYPE-C16PIN USB-C receptacle 16P 30V 3A,USB-PD-2-C64-Adapter:TYPE-C16PIN_C393939,C393939,1,USB-PD Eingang
+U4,CH224K USB PD sink controller 15V request,USB-PD-2-C64-Adapter:CH224K_ESSOP-10-150mil-1mm,C970725,1,USB-PD Eingang
+U5,TPD2S300YFFR USB-C CC short-to-VBUS and IEC ESD protector,USB-PD-2-C64-Adapter:TPD2S300YFFR_DSBGA-9,C2650411,1,USB-PD Eingang
+U6,TPS16630PWPR central 15V input eFuse/load switch HTSSOP-20,Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm,TBD,1,USB-PD Eingang
+C16,22nF X7R 50V U6 dVdT soft-start capacitor start value,Capacitor_SMD:C_0603_1608Metric,TBD,1,USB-PD Eingang
+R8,56k 1% CH224K CFG1 15V request,Resistor_SMD:R_0603_1608Metric,C114630,1,USB-PD Eingang
+R9,1k 1% CH224K VDD feed 1206,Resistor_SMD:R_1206_3216Metric,C131398,1,USB-PD Eingang
+R10,2.2k 1% 15V PG LED resistor,Resistor_SMD:R_0603_1608Metric,C114662,1,USB-PD Eingang
+R11,1M 1% AP64500 EN/UVLO top start value,Resistor_SMD:R_0603_1608Metric,C105578,1,USB-PD Eingang
+R12,100k 1% AP64500 EN/UVLO bottom start value,Resistor_SMD:R_0603_1608Metric,C14675,1,USB-PD Eingang
+R13,100k 1% U6 SHDN pull-up to CH224_VDD,Resistor_SMD:R_0603_1608Metric,C14675,1,USB-PD Eingang
+R14,274k 1% U6 UVLO/OVP divider top start value,Resistor_SMD:R_0603_1608Metric,C482818,1,USB-PD Eingang
+R15,7.68k 1% U6 UVLO/OVP divider middle start value,Resistor_SMD:R_0603_1608Metric,C163419,1,USB-PD Eingang
+R16,20.0k 1% U6 UVLO/OVP divider bottom start value,Resistor_SMD:R_0603_1608Metric,C844676,1,USB-PD Eingang
+R17,18k 1% U6 ILIM resistor start value,Resistor_SMD:R_0603_1608Metric,TBD,1,USB-PD Eingang
+C14,1uF X7R 25V CH224K VDD decoupling,Capacitor_SMD:C_0603_1608Metric,C29936,1,USB-PD Eingang
+C15,100nF X7R 50V TPD2S300 VBIAS support capacitor,Capacitor_SMD:C_0603_1608Metric,C14663,1,USB-PD Eingang
+D2,KT-0603G emerald green 0603 15V PD status LED,USB-PD-2-C64-Adapter:KT-0603G_C12624,C12624,1,USB-PD Eingang
+J1,2-pin 2.54mm lab/test input header DNP not normally populated,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,DNP,1,USB-PD Eingang
+D1,SMBJ18A TVS 18V VRWM,Diode_SMD:D_SMB,C353379,1,USB-PD Eingang
+F1,JFC2410-1400TS 4A 250V 2410 fuse,USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder,C136386,1,USB-PD Eingang
+FH1,XFCN XF-155 2410/6125 SMD fuse holder (holds F1),USB-PD-2-C64-Adapter:XFCN_XF-155_2410_FuseHolder,C41371860,1,USB-PD Eingang
+C1,47uF polymer input bulk,Capacitor_SMD:CP_Elec_6.3x5.8,C494513,1,USB-PD Eingang
+"C2,C3",10uF X7R input MLCC,Capacitor_SMD:C_1210_3225Metric,C138687,2,USB-PD Eingang
+C4,100nF BST-SW bootstrap,Capacitor_SMD:C_0603_1608Metric,C14663,1,5VDC
+C5,1.5nF compensation,Capacitor_SMD:C_0603_1608Metric,C710892,1,5VDC
+"C6,C7,C8,C9,C13",22uF X7R output MLCC,Capacitor_SMD:C_1210_3225Metric,C2918511,5,5VDC
+C10,220uF polymer output bulk,Capacitor_SMD:CP_Elec_6.3x7.7,C46550461,1,5VDC
+C11,100nF,Capacitor_SMD:C_0603_1608Metric,C14663,1,5VDC
+C12,1nF,Capacitor_SMD:C_0603_1608Metric,C507408,1,5VDC
+L1,2.2uH MWSA0603S Isat 10A IRMS 9.5A DCR 15mR,Inductor_SMD:L_Sunlord_MWSA0603S,C408445,1,5VDC
+R1,66.5k RT 1.5MHz,Resistor_SMD:R_0603_1608Metric,C218113,1,5VDC
+R2,39.2k,Resistor_SMD:R_0603_1608Metric,C217999,1,5VDC
+R3,105k 0.1%,Resistor_SMD:R_0603_1608Metric,C667149,1,5VDC
+R4,20.0k 0.1%,Resistor_SMD:R_0603_1608Metric,C844676,1,5VDC
+R5,124k 0.1%,Resistor_SMD:R_0603_1608Metric,C861097,1,5VDC
+R6,10k 0.1%,Resistor_SMD:R_0603_1608Metric,C844890,1,5VDC
+R7,33,Resistor_SMD:R_0603_1608Metric,C23140,1,5VDC
+U1,AP64500SP-13 synchronous buck 3.8V-40V 5A,USB-PD-2-C64-Adapter:SOIC-8-1EP_3.9x4.9mm_P1.27mm_EP2.62x3.51mm_ThermalVias,C2070920,1,5VDC
+U3,TPS3700DDCR window comparator OVP SOT-23-6,Package_TO_SOT_SMD:SOT-23-6,C33002,1,5VDC
+J2,C64 DIN 5V pins,Connector_DIN:DIN-7,TBD,1,5VDC
