@@ -9,6 +9,22 @@ KiCad-PCB-Adapter für ein modernes USB-C-PD-Netzteil zur Stromversorgung eines 
 - Eingang: USB-C Stecker (USB-PD, **15V/3A fest vorgesehen**)
 - Ausgang: C64-Netzteilstecker (DIN 7-polig)
 
+**Zwingende Energiequelle:** Als einzige Energiequelle des gesamten Adapters darf ein modernes **USB-C-PD-Netzteil** dienen. Externe Zusatznetzteile, ein separater Trafo oder ein netzspannungsbasierter Trafo-Zweig sind keine Option für dieses Projekt.
+
+**C64-DIN-7-Pinbelegung (Außenansicht auf die C64-Netzbuchse, DIN 45329):**
+
+| Pin | Signal | Bemerkung |
+| --- | --- | --- |
+| 1 | GND | Masse/unbelegt |
+| 2 | GND | Masse |
+| 3 | GND | Masse/unbelegt |
+| 4 | - / +5V DC | unbelegt oder +5V statt Pin 5; Pin 4 und 5 sind laut C64-Schaltplan direkt nach der Buchse verbunden |
+| 5 | +5V DC | 5 Volt Gleichspannung |
+| 6 | 9V AC 1 | 9 Volt Wechselspannung |
+| 7 | 9V AC 2 | 9 Volt Wechselspannung |
+
+Für das Adapterlayout sind Pin 4/5 als möglicher gemeinsamer +5V-Strompfad und Pin 1/2/3 als Massepfad bewusst zu prüfen. Pin 6 und 7 bilden den 9VAC-Ausgang; Vertauschen der beiden AC-Pins ist elektrisch unkritisch, die mechanische Pinzuordnung muss trotzdem exakt geprüft werden.
+
 **Erforderliche Ausgangsspannungen (gemäß Original-Netzteil):**
 
 - **5 VDC** mit **3 A Zielstrom** und thermischer Reserve (Logik, SID, VIC-II)
@@ -24,7 +40,7 @@ KiCad-PCB-Adapter für ein modernes USB-C-PD-Netzteil zur Stromversorgung eines 
 
 **Aktualisierte C64-Zielgröße:** Nach Bewertung moderner C64-Netzteilkonzepte ist 5A Dauerstrom für den C64-Ausgang nicht das eigentliche Qualitätsziel. Das Originalnetzteil lag bei ca. 1.5A auf 5V; Erweiterungen wie REU-orientierte Setups wurden historisch eher mit ca. 2.5A versorgt. Für einen hochwertigen C64-Adapter ist daher **3A auf der 5V-Schiene ein sinnvoller Zielwert mit Reserve**, während die DIN-Buchse und die 5V-Pins nicht unnötig mit einem 5A-Dauerlastanspruch belastet werden sollten. Entscheidend sind präzise 5.0V am C64, geringe Restwelligkeit, kontrolliertes Ein-/Ausschalten, Rückstrom-/Überspannungsschutz und stabile Lastsprungantwort.
 
-**Festlegung Eingangsspannung:** Der aktuelle Entwurf ist auf **15V/3A USB-PD** festgelegt. 12V bleibt für die 9VAC/2A-Sinuserzeugung zu knapp, weil 9VAC RMS ca. 12.7V Spitzenspannung plus Verluste/Regelreserve benötigt. 20V-PD wird für den AP64500-5V-Zweig nicht mehr als Zielbetrieb vorgesehen; dadurch sinken Schaltstress, Verlustleistung und Anforderungen an Eingangsschutz und Kondensatoren. 15V/2A liefert nur 30W und ist für 5V/3A plus 9VAC/2A Worst-Case knapp; **15V/3A mit 45W ist die aktuelle Systemvorgabe.**
+**Festlegung Eingangsspannung:** Der aktuelle Entwurf ist auf **15V/3A USB-PD als einzige Energiequelle** festgelegt. 12V bleibt für die 9VAC/2A-Sinuserzeugung zu knapp, weil 9VAC RMS ca. 12.7V Spitzenspannung plus Verluste/Regelreserve benötigt. 20V-PD wird für den AP64500-5V-Zweig nicht mehr als Zielbetrieb vorgesehen; dadurch sinken Schaltstress, Verlustleistung und Anforderungen an Eingangsschutz und Kondensatoren. 15V/2A liefert nur 30W und ist für 5V/3A plus 9VAC/2A Worst-Case knapp; **15V/3A mit 45W ist die aktuelle Systemvorgabe.** Ein separater Trafo- oder Zweitnetzteilpfad ist ausdrücklich ausgeschlossen.
 
 **Bewertung nach RT6318C-Datenblatt (2021-12):** Der RT6318CGQUF ist als 5.1V/8A-Synchron-Buck grundsätzlich geeignet, wenn das Layout eng am Referenzdesign bleibt und der Überspannungsschutz separat präzise ausgelegt wird. Kritisch ist die geringe Eingangsspannungsreserve: RT6318C ist für **5.1V bis 23V VIN empfohlen**, bei **27V absolute maximum**. Ein USB-PD-20V-Netzteil liegt damit im Normalbetrieb passend, Transienten müssen aber durch TVS, kurze Leitungen und Eingangskapazität sicher unterhalb der IC-Grenzen bleiben.
 
@@ -169,7 +185,20 @@ AP64500-Startwerte fuer 15V-PD auf 5V/3A mit Ripple-Ziel <40mVpp:
 - **Kritische Anforderungen:**
   - Sauberer Sinus bei 50 Hz oder 60 Hz
   - Belastbarkeit mindestens 2 A kontinuierlich
+  - 9VAC RMS im Leerlauf maximal 15% über Nennspannung, also **max. ca. 10.3VAC**
+  - 9VAC muss abgeschaltet werden, wenn keine 5V-Last entnommen wird; Hintergrund: Der C64-Einschalter unterbricht nur einen Pol der 9VAC-Versorgung, sonst können Teile des C64 im ausgeschalteten Zustand unerwünscht versorgt werden
   - THD (Total Harmonic Distortion) prüfen
+  - Energieversorgung ausschließlich aus dem USB-C-PD-15V/3A-System; Trafo- oder Zweitnetzteil-Lösungen sind für dieses Projekt ausgeschlossen
+
+**Aktuelle 9VAC-Architekturentscheidung:** Der 9VAC-Zweig wird als synthetischer, differentieller Sinusausgang aus der geschalteten 15V-Schiene hinter U6 aufgebaut. Pin 6 und Pin 7 des DIN-Ausgangs dürfen nicht als einseitig gegen Board-GND geschalteter AC-Ausgang betrachtet werden; der Ausgang muss als H-Brücken-/Vollbrücken-Ausgang zwischen `9VAC_6` und `9VAC_7` arbeiten. Ein Anschluss von Pin 6 oder 7 an GND ist nicht zulässig. Ziel ist eine möglichst floating wirkende AC-Quelle mit kontrolliertem Common-Mode-Verhalten, damit User-Port- und interner C64-9VAC-Pfad nicht unerwartet gegen die 5V-Masse rückgespeist werden.
+
+**Topologie-Startpunkt:** `VIN_BUCK` bzw. die von U6 geschaltete 15V-Schiene speist einen eigenen 9VAC-Leistungspfad mit lokaler Bulk-Kapazität, Vollbrücken-Endstufe, Sinus-PWM-Erzeugung und LC-/Rekonstruktionsfilter. Das wagiminator-ATtiny412-Design bleibt ein Firmware-/Konzept-Referenzpunkt, muss fuer 9VAC/2A aber als Leistungsteil neu dimensioniert werden: MOSFETs oder H-Brücken-Treiber, Induktivitäten, Filterkondensatoren, Strommessung, thermische Kupferflächen und Abschaltpfade sind nicht aus einem kleinen Referenzdesign zu übernehmen. Fertige DC-AC-Module sind nur akzeptabel, wenn sie 15V Eingang, echten sinusfoermigen differentiellen 9VAC-Ausgang, 2A Dauerlast, THD-Nachweis, Leerlaufbegrenzung und die 5V-Last-abhängige Abschaltung erfüllen; typische Mini-Inverter- oder Rechteckwandler-Module erfüllen diese Anforderungen voraussichtlich nicht.
+
+**Regelung und Messung:** Die 9VAC-Amplitude darf nicht nur offen per PWM-Tabelle angenommen werden. Erforderlich ist mindestens eine Mess-/Kalibrierstelle fuer die differentielle Ausgangsspannung nach Filter; bevorzugt wird eine MCU-gestuetzte RMS-/Amplitude-Korrektur oder eine analoge Begrenzung, damit Leerlauf und Lastfall innerhalb der 9VAC-Spezifikation bleiben. Messpunkte fuer `9VAC_6`, `9VAC_7`, differentielles 9VAC, 9VAC-Strom und Endstufentemperatur vorsehen.
+
+**5V-Last-Erkennung fuer 9VAC-Abschaltung:** Die Abschaltung soll nicht die 9VAC-Last messen, sondern erkennen, ob der C64 die 5V-Schiene aktiv belastet. Startarchitektur: kleiner High-Side- oder Low-Side-Current-Sense im 5V-Pfad mit Komparator/MCU-Auswertung, Hysterese und Zeitfilter. Unterhalb einer noch zu messenden Schwelle wird die 9VAC-Endstufe deaktiviert; oberhalb der Schwelle wird sie erst nach stabiler 5V-Freigabe und kurzer Verzögerung aktiviert. Die Schwelle muss später mit echten C64-Lastprofilen festgelegt werden, damit ausgeschaltete C64s sicher erkannt werden, aber sehr kleine aktive Lasten nicht versehentlich 9VAC verlieren.
+
+**Leistungsbudget:** 5V/3A plus 9VAC/2A liegt mit Wandlerverlusten nah am 45W-Budget von 15V/3A. Der Adapter muss deshalb nicht nur Einzelzweige, sondern auch gleichzeitige Worst-Case-Last, PD-Spannungstoleranz, U6-Stromlimit, Sicherungskennlinie, thermische Endstufenlast und Spannungseinbruch pruefen. Falls 9VAC/2A und 5V/3A gleichzeitig als Dauer-Worst-Case gefordert werden, ist das 15V/3A-Eingangsbudget ein harter Grenzfall und muss vor PCB-Freigabe rechnerisch und im Prototyp validiert werden.
 
 ## Projektstruktur
 
@@ -186,25 +215,25 @@ KiCad/
 
 ## Aktuelle BOM (verbindlich, Stand Schaltplan USB-PD-2-C64-Adapter.kicad_sch)
 
-Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C64-Adapter_BOM.csv`, `Production/USB-PD-2-C64-Adapter_BOM.txt` und den KiCad-Symbolen überein. Die BOM enthält die Spalte **Baugruppe** mit den Werten `USB-PD Eingang`, `5VDC` und später `9VAC`. Die USB-PD-Eingangsteile sind im Schaltplan aktuell bewusst **unverdrahtet** platziert; Verbindungen werden manuell gesetzt.
+Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C64-Adapter_BOM.csv`, `Production/USB-PD-2-C64-Adapter_BOM.txt` und den KiCad-Symbolen überein. Die BOM enthält die Spalte **Baugruppe** mit den Werten `USB-PD Eingang`, `5VDC` und `9VAC`. Die USB-PD-Eingangsteile sind im Schaltplan aktuell bewusst **unverdrahtet** platziert; Verbindungen werden manuell gesetzt.
 
 | Ref | Wert | Baugruppe | Funktion | Footprint | LCSC | Menge |
 | --- | --- | --- | --- | --- | --- | --- |
 | J3 | SHOU HAN TYPE-C16PIN | USB-PD Eingang | USB-C-Buchse 16P, 30V, 3A | USB-PD-2-C64-Adapter:TYPE-C16PIN_C393939 | C393939 | 1 |
 | U4 | CH224K | USB-PD Eingang | USB-PD Sink Controller, 15V-Anforderung | USB-PD-2-C64-Adapter:CH224K_ESSOP-10-150mil-1mm | C970725 | 1 |
 | U5 | TPD2S300YFFR | USB-PD Eingang | USB-C CC Short-to-VBUS- und IEC-ESD-Schutz | USB-PD-2-C64-Adapter:TPD2S300YFFR_DSBGA-9 | C2650411 | 1 |
-| U6 | TPS16630PWPR | USB-PD Eingang | Zentrale 15V-eFuse/Load-Switch fuer VIN_BUCK und spaeter 9VAC | Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm | TBD | 1 |
-| C16 | 22nF X7R 50V | USB-PD Eingang | U6 dVdT-Softstart-Kondensator, Startwert | Capacitor_SMD:C_0603_1608Metric | TBD | 1 |
+| U6 | TPS16630PWPR | USB-PD Eingang | Zentrale 15V-eFuse/Load-Switch fuer VIN_BUCK und spaeter 9VAC | Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm | C1849461 | 1 |
+| C16 | 22nF X7R 50V | USB-PD Eingang | U6 dVdT-Softstart-Kondensator, Startwert | Capacitor_SMD:C_0603_1608Metric | C106222 | 1 |
 | R8 | 56k 1% | USB-PD Eingang | CH224K CFG1 nach GND fuer 15V | Resistor_SMD:R_0603_1608Metric | C114630 | 1 |
 | R9 | 1k 1% | USB-PD Eingang | CH224K VDD-Zufuehrung | Resistor_SMD:R_1206_3216Metric | C131398 | 1 |
-| R10 | 2.2k 1% | USB-PD Eingang | Gruene 15V-PD-Status-LED | Resistor_SMD:R_0603_1608Metric | C114662 | 1 |
+| R10 | 470R 1% | USB-PD Eingang | Gruene 15V-PD-Status-LED | Resistor_SMD:R_0603_1608Metric | C23179 | 1 |
 | R11 | 1M 1% | USB-PD Eingang | AP64500 EN/UVLO oben, Startwert | Resistor_SMD:R_0603_1608Metric | C105578 | 1 |
 | R12 | 100k 1% | USB-PD Eingang | AP64500 EN/UVLO unten, Startwert | Resistor_SMD:R_0603_1608Metric | C14675 | 1 |
 | R13 | 100k 1% | USB-PD Eingang | U6 SHDN Pull-up nach CH224_VDD | Resistor_SMD:R_0603_1608Metric | C14675 | 1 |
 | R14 | 274k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler oben, Startwert | Resistor_SMD:R_0603_1608Metric | C482818 | 1 |
 | R15 | 7.68k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler Mitte, Startwert | Resistor_SMD:R_0603_1608Metric | C163419 | 1 |
 | R16 | 20.0k 1% | USB-PD Eingang | U6 UVLO/OVP-Teiler unten, Startwert | Resistor_SMD:R_0603_1608Metric | C844676 | 1 |
-| R17 | 18k 1% | USB-PD Eingang | U6 ILIM-Widerstand, Startwert | Resistor_SMD:R_0603_1608Metric | TBD | 1 |
+| R17 | 18k 1% | USB-PD Eingang | U6 ILIM-Widerstand, Startwert | Resistor_SMD:R_0603_1608Metric | C114610 | 1 |
 | C14 | 1uF X7R 25V | USB-PD Eingang | CH224K VDD-Stuetzung | Capacitor_SMD:C_0603_1608Metric | C29936 | 1 |
 | C15 | 100nF X7R 50V | USB-PD Eingang | TPD2S300 VBIAS-Stuetzung | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
 | D2 | KT-0603G gruen | USB-PD Eingang | Gruene 0603 15V-PD-Status-LED, A=2/K=1 | USB-PD-2-C64-Adapter:KT-0603G_C12624 | C12624 | 1 |
@@ -229,18 +258,65 @@ Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C6
 | R4 | 20.0k 0.1% | 5VDC | FB unten, Vout = 5.000V | Resistor_SMD:R_0603_1608Metric | C844676 | 1 |
 | R5 | 124k 0.1% | 5VDC | OVP oben (TPS3700) | Resistor_SMD:R_0603_1608Metric | C861097 | 1 |
 | R6 | 10k 0.1% | 5VDC | OVP unten, Auslösung ~5.36V | Resistor_SMD:R_0603_1608Metric | C844890 | 1 |
-| R7 | 33 | 5VDC | Gate/Serie | Resistor_SMD:R_0603_1608Metric | C23140 | 1 |
-| J2 | C64 DIN 5V-Pins | 5VDC | DIN-7 Ausgang | Connector_DIN:DIN-7 | TBD | 1 |
+| R7 | 10mR 1% 3W SHUNT | 5VDC | 5V-Lastmess-Shunt fuer INA180A2, Kelvin-nah anbinden | Resistor_SMD:R_2512_6332Metric | C5375464 | 1 |
+| U9 | INA180A2IDBVR | 5VDC | High-Side-Current-Sense-Verstaerker 50V/V fuer 5V-Lastdetektion am ATtiny PA1/ADC | Package_TO_SOT_SMD:SOT-23-5 | C192764 | 1 |
+| C26 | 100nF X7R 50V | 5VDC | Lokaler U9/INA180A2 V+-Abblockkondensator | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| J2 | HOOYA DIN-704-M10 C64 DIN-7 | 5VDC | DIN-7 Ausgang: 1 GND_1, 2 GND_2, 3 GND_3, 4 5VDC_4, 5 5VDC_5, 6 9VAC_6, 7 9VAC_7 | USB-PD-2-C64-Adapter:DIN-704-M10_C20611695 | C20611695 | 1 |
+| U7 | DRV8256PPWPR | 9VAC | Differentieller 9VAC-H-Brueckentreiber aus VIN_BUCK | Package_SO:Texas_PWP0028V_TSSOP-28-1EP_4.4x9.7mm_P0.65mm_EP3.4x9.7mm_Mask2.94x5.62mm_ThermalVias | C3681352 | 1 |
+| U8 | ATTINY412-SSNR | 9VAC | ATtiny412-Controller fuer Sinus-PWM, nSLEEP-Sequenz und 5V-Lastdetektion | Package_SO:SOIC-8_3.9x4.9mm_P1.27mm | C1337190 | 1 |
+| C17 | 100nF 50V | 9VAC | DRV8256 VM lokaler Keramik-Abblockkondensator | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| C18 | 1uF 50V | 9VAC | DRV8256 VM lokaler Keramik-Abblockkondensator | Capacitor_SMD:C_0805_2012Metric | C28323 | 1 |
+| C19 | 10uF 50V | 9VAC | DRV8256 VM Eingangskeramik nahe H-Bruecke | Capacitor_SMD:C_1210_3225Metric | C138687 | 1 |
+| C20 | 100uF 35V | 9VAC | DRV8256 lokaler VIN_BUCK-Bulk, Startwert | Capacitor_SMD:CP_Elec_6.3x7.7 | C19270709 | 1 |
+| C21 | 220nF X7R 50V | 9VAC | DRV8256 VCP-nach-VM Charge-Pump-Kondensator | Capacitor_SMD:C_0603_1608Metric | C237192 | 1 |
+| C22 | 22nF X7R 50V | 9VAC | DRV8256 CPH-nach-CPL Charge-Pump-Kondensator | Capacitor_SMD:C_0603_1608Metric | C106222 | 1 |
+| C23 | 1uF X7R 25V | 9VAC | DRV8256 DVDD-Regler-Abblockkondensator | Capacitor_SMD:C_0603_1608Metric | C29936 | 1 |
+| R18, R19 | 33R | 9VAC | DRV8256 IN1/IN2 Serienwiderstaende vom ATtiny-PWM, Startwert | Resistor_SMD:R_0603_1608Metric | C23140 | 2 |
+| R20 | 100k | 9VAC | DRV8256 nSLEEP-Pulldown | Resistor_SMD:R_0603_1608Metric | C14675 | 1 |
+| R21 | 10k | 9VAC | DRV8256 nFAULT Pull-up | Resistor_SMD:R_0603_1608Metric | C844890 | 1 |
+| R22, R23 | 10k 1% | 9VAC | DRV8256 VREF-Teiler, Startwert ITRIP ca. 3.8A Peak | Resistor_SMD:R_0603_1608Metric | C844890 | 2 |
+| L2, L3 | 47uH 5A START | 9VAC | Differenzielle LC-Ausgangsfilter-Drosseln, Mess-Startwert | Inductor_SMD:L_10.4x10.4_H4.8 | C7529419 | 2 |
+| C24 | 1uF X7R 50V | 9VAC | Differentieller LC-Filter-Kondensator zwischen 9VAC_6 und 9VAC_7, Startwert | Capacitor_SMD:C_1210_3225Metric | C445699 | 1 |
+| C25 | 100nF X7R 50V | 9VAC | Lokaler U8/ATtiny412 VCC-Abblockkondensator | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+| C27 | 1uF X7R 50V DNP | 9VAC | Optionaler paralleler differentieller LC-Filter-Tuning-Kondensator zwischen 9VAC_6 und 9VAC_7 | Capacitor_SMD:C_1210_3225Metric | DNP | 1 |
+| J4 | 50 / 60Hz DNP | 9VAC | 2-poliger 2.54mm-Konfigurationsheader fuer Frequenzauswahl, nicht normal bestueckt | Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical | DNP | 1 |
+| J5 | UPDI DNP | 9VAC | 3-poliger 2.54mm-UPDI-Programmierheader, nicht normal bestueckt | Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical | DNP | 1 |
+| JP1 | Decay DNP | 9VAC | DRV8256-DECAY-Solder-Jumper, gebrueckt 1-2, kein bestuecktes Bauteil | Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm | DNP | 1 |
+| U10 | SN74LVC2G132DCTR | 9VAC | Dual-Schmitt-NAND fuer verzoegerten DRV8256-nFAULT-Latch, aktuell platziert aber unverdrahtet | Package_SO:VSSOP-8_3x3mm_P0.65mm | C2870897 | 1 |
+| Q1 | 2N7002DW-7-F | 9VAC | Dual-NMOS fuer gelatchten nSLEEP-Pulldown und rote Fault-LED-Senke, aktuell unverdrahtet | Package_TO_SOT_SMD:SOT-363_SC-70-6 | C83571 | 1 |
+| D3 | KT-0603R rot | 9VAC | Rote 0603-Fault-LED, A=2/K=1, aktuell unverdrahtet | LED_SMD:LED_0603_1608Metric | C2286 | 1 |
+| D4 | 1N4148W | 9VAC | Rueckladediode fuer nFAULT-Verzoegerungskondensator nach Fault-Ende, aktuell unverdrahtet | Diode_SMD:D_SOD-123 | C81598 | 1 |
+| R24, R28 | 4.7k 1% | 9VAC | PA2-Serienwiderstand und Fault-LED-Vorwiderstand, aktuell unverdrahtet | Resistor_SMD:R_0603_1608Metric | C23162 | 2 |
+| R25, R26 | 100k 1% | 9VAC | nFAULT-Verzoegerungswiderstand und Reset-Pull-up, aktuell unverdrahtet | Resistor_SMD:R_0603_1608Metric | C14675 | 2 |
+| R27 | 1k 1% | 9VAC | Gate-Widerstand vom Latch-Ausgang zu Q1, aktuell unverdrahtet | Resistor_SMD:R_0603_1608Metric | C21190 | 1 |
+| C28 | 1uF X7R 25V | 9VAC | nFAULT-Verzoegerungskondensator, aktuell unverdrahtet | Capacitor_SMD:C_0603_1608Metric | C29936 | 1 |
+| C29 | 100nF X7R 50V | 9VAC | Power-on-Reset-Kondensator fuer Fault-Latch, aktuell unverdrahtet | Capacitor_SMD:C_0603_1608Metric | C14663 | 1 |
+
+**J2-Status:** J2 ist elektrisch als DIN-7-C64-Ausgang mit den Pin-/Padbezeichnungen 1 `GND_1`, 2 `GND_2`, 3 `GND_3`, 4 `5VDC_4`, 5 `5VDC_5`, 6 `9VAC_6` und 7 `9VAC_7` modelliert und auf den PCB-montierten HOOYA DIN-704-M10/C20611695 als Startkandidat festgelegt. Die LCSC/EasyEDA-Padtopologie passt zum C64-Wiki-Hinweis: Pin 1 liegt zwischen Pin 4 und 6, Pin 3 liegt zwischen Pin 5 und 7. Der projektlokale Footprint `DIN-704-M10_C20611695` ist trotzdem vor PCB-Freigabe gegen das reale Bauteil, Herstellerzeichnung, Außenansicht der C64-Buchse, Gehaeuseabstand und Stromtragfaehigkeit zu pruefen. Das 3D-Modell `CONN-TH_DIN-704-M10.step` wurde aus dem EasyEDA-Modell per easyeda2kicad erzeugt und im aktuellen Footprint mit Scale 0.8 eingehängt, weil der EasyEDA-Export gegenüber dem vorhandenen projektlokalen Footprint um Faktor 1.25 größer ist; diese Maßdifferenz ist bei der realen Footprint-Freigabe mitzuprüfen.
+
+**Hinweis DRV8256P 9VAC-Leistungszweig:** U7 ist **DRV8256PPWPR/C3681352** als differenzieller H-Brueckentreiber fuer den synthetischen 9VAC-Ausgang zwischen `9VAC_6` und `9VAC_7`. Die DRV8256-Datenblattbeschaltung ist als Mindestbasis umgesetzt: VM lokale Keramikstuetzung C17/C18/C19 plus Bulk C20, VCP-VM mit C21 220nF, CPH-CPL mit C22 22nF, DVDD-GND mit C23 1uF, nFAULT-Pull-up R21 und IN1/IN2-Serienwiderstaende R18/R19. DVDD ist ein Ausgang des DRV8256-Reglers und bekommt keine externe Eingangsspannung. Digitale Dauer-High-Signale wie DECAY duerfen bevorzugt auf DVDD gelegt werden; nSLEEP darf nicht an DVDD haengen, sondern muss vom ATtiny gesteuert werden.
+
+**Hinweis 9VAC-LC-Filter L2/L3/C24/C27:** L2 und L3 sind als bestueckte **47uH/5A-Startwerte, SHOU HAN CYA1050-47UH, LCSC/JLC C7529419** vorgesehen. C24 ist als bestückter Startwert mit **1uF X7R 50V 1210, TDK C3225X7R1H105KT0A0N, JLCPCB/LCSC C445699** zwischen `9VAC_6` und `9VAC_7` vorgesehen. C27 ist parallel dazu als identische optionale Tuning-Position angelegt, aber **DNP**; erste Bestückung daher 1uF differentiell, spätere Messvariante mit C27 bestückt ergibt 2uF. Kein Kondensator des 9VAC-Ausgangs darf nach Board-GND geführt werden. Werte sind nicht final: THD, PWM-Ripple, Leerlaufspannung <=10.3VAC RMS, 2A-Dauerlast, Induktor-Saettigung, Temperatur und Lastsprung muessen am Prototyp verifiziert werden.
+
+**Hinweis DRV8256 VREF R22/R23:** R22/R23 sind als 10k/10k-Startwert von DVDD nach GND gesetzt. Damit liegt VREF grob bei 2.5V; nach DRV8256-Datenblatt gilt fuer VREF <=3.3V ungefaehr `ITRIP = VREF / 0.66`, also ca. 3.8A Peak. Das ist ein erster Schutz-/Regel-Startwert oberhalb 2A RMS und muss zusammen mit Filter, Sinus-PWM, thermischer Last und C64-9VAC-Verbrauch vermessen werden.
+
+**Hinweis nSLEEP/9VAC-Abschaltung:** U8 ist **ATTINY412-SSNR/C1337190** und laeuft aus der 5V-Schiene. PA1/ADC liest den INA180A2-Ausgang der 5V-Lastmessung; PA2 steuert ueber `PA2_DRV_NSLEEP` den DRV8256-nSLEEP-Eingang. Die Firmware-/Logiksequenz soll nSLEEP erst high setzen, wenn 5V stabil ist und eine echte 5V-Last oberhalb der noch zu kalibrierenden Schwelle erkannt wird. Bei keiner 5V-Last, Fault, Unterspannung oder Abschalten muss PA2 nSLEEP low ziehen, damit der 9VAC-Zweig aus bleibt.
+
+**Hinweis 9VAC-Schutzstatus:** Ein separater Ausgangsschutz fuer `9VAC_6`/`9VAC_7` ist noch nicht final festgelegt. Der aktuelle Schutzpfad besteht aus zentraler U6-15V-eFuse, DRV8256-Stromregelung/OCP/TSD, VREF-Begrenzung, ATtiny-Abschaltung und dem ausgewaehlten lokalen DRV8256-nFAULT-Latch aus U10/Q1/D3/D4/R24-R28/C28/C29. Q1 ist ein 2N7002DW-7-F Dual-NMOS im SOT-363; ein interner FET zieht `DRV_NSLEEP` dominant low, der andere FET schaltet die rote Fault-LED. Ziel ist: ein anhaltender DRV8256-nFAULT setzt nach RC-Verzoegerung einen Latch, Q1 zieht `DRV_NSLEEP` dominant low und D3 zeigt den Fehler an. Der Latch laeuft aus `CH224_VDD_3V3`, nicht aus DRV8256-DVDD. Nicht direkt mit `EFUSE_SHDN` verbinden, damit ein lokaler 9VAC-Fehler nicht unnoetig die 5V-Schiene abschaltet. Keiner der beiden 9VAC-Ausgaenge darf nach Board-GND abgesichert oder geklemmt werden, wenn dadurch der differentielle/floating-artige Ausgang verletzt wird.
+
+**Hinweis 5V-Lastdetektion U9/R7/C26:** U9 ist **INA180A2IDBVR/C192764** mit Pinout A und Gain 50V/V. R7 ist **10mR 1% 3W 2512/C5375464** in Serie zwischen `5V_PROTECTED_SENSE` und dem C64-5V-Ausgang zu J2 Pin 4/5. U9-IN+ liegt auf der Regler-/Schutzseite des Shunts, U9-IN- auf der DIN-/Lastseite; U9-OUT geht auf `PA1/ADC` des ATtiny. Bei 10mR und Gain 50V/V gilt `V_ADC = I_LOAD * 0.5V/A`, also ca. 50mV bei 100mA, 250mV bei 500mA und 1.5V bei 3A. C26 ist der lokale 100nF-Abblockkondensator fuer U9-V+ nach GND. Die Shunt-Sense-Leitungen muessen im PCB Kelvin-nah direkt an den R7-Pads abgegriffen werden.
 
 **Footprint-/3D-Hinweis USB-PD-Eingang:** `TYPE-C16PIN_C393939` ist ein projektlokaler Startfootprint mit lokalem STEP-Modell. `CH224K_ESSOP-10-150mil-1mm` ist ein projektlokaler Footprint fuer CH224K ESSOP10/C970725, gegen `Datasheet/CH224DS1.pdf` geprüft: 3.9mm Body-Breite, ca. 5.0mm Body-Laenge, 6.0mm Gesamtbreite mit Pins und 1.00mm Pitch; als 3D-Modell wird das KiCad-Standardmodell `SSOP-10-1EP_3.9x4.9mm_P1mm_EP2.1x3.3mm.step` verwendet, nicht das fruehere falsche TSSOP-10-3x3mm/0.5mm-Modell. `TPD2S300YFFR_DSBGA-9` ist ein projektlokaler Footprint fuer TI YFF/DSBGA-9 mit 0.4mm Pitch, 0.23mm Pads und lokalem VRML-3D-Modell `TPD2S300YFFR_DSBGA-9.wrl`. JLCPCB-PCBA nennt Fine-Pitch/BGA-Bestueckung ab >=0.35mm Pitch; die 0.4mm-YFF-Bestueckung ist daher grundsaetzlich plausibel, aber das Routing ist eng: zwischen 0.23mm-Pads bleiben nur ca. 0.17mm Kupferabstand, deshalb U5 mit feinen Design-Rules, kurzen Top-Layer-Ausbruechen, sauberer Loetstoppmaske/Paste und JLC-DFM-Check pruefen. Vor PCB-Freigabe müssen Padgeometrie, Gehäuseumriss, Höhenmodell und Lötmasken/Paste mit den Herstellerdatenblättern geprüft werden. Die USB-PD-Teile wurden initial bewusst unverdrahtet platziert; die CC-Schutzverdrahtung muss weiterhin manuell/gezielt geprueft werden.
 
 **Hinweis USB-C/CC-Schutz U5:** U5 ist jetzt **TPD2S300YFFR/C2650411** statt USBLC6-2SC6. Grund: USBLC6 ist ein 5V-USB2-ESD-Baustein und sein VBUS-Referenzpin darf nicht an den 15V-PD-VBUS. TPD2S300 ist ein aktiver USB-C-CC-Schutz mit Short-to-VBUS-Isolation und IEC-ESD-Schutz. Anschlusspunkte: `C_CC1/C_CC2` an die USB-C-Buchse, `CC1/CC2` an CH224K, `GND` an Board-GND, `VBIAS` an C15 100nF/50V nach GND, `VPWR` und `VM` an die CH224K-`VDD`-Schiene. CH224K-`VDD` ist laut Datenblatt beim CH224K ein interner 3.3V-Shunt-Regler mit 3.24V bis 3.36V und bis 30mA Parallel-Sink-Faehigkeit; TPD2S300 liegt mit Mikroampere-Versorgung deutlich darunter. `FLT` ist Open-Drain und kann optional an eine spaetere Diagnose/PG-Logik, sonst offen lassen. DSBGA-9 ist nicht handloetfreundlich; fuer Handaufbau waere ein rein passiver TVS einfacher, schuetzt aber nicht gleichwertig gegen CC-Short-to-VBUS. Layout laut TI: Baustein so nah wie moeglich an die USB-C-Buchse, `C_CC1/C_CC2` ungeschuetzt kurz und gerade fuehren, scharfe Ecken vermeiden, VBIAS/VPWR/VM-Kondensatoren sehr nah und an solide Masse anbinden.
 
+**Hinweis CH224K-PG-LED D2/R10:** CH224K-`PG` ist laut `CH224DS1.pdf` ein Open-Drain-Ausgang fuer PowerGood, aktiv low. Die Status-LED ist deshalb als Sink-Pfad verschaltet: `CH224_VDD_3V3 -> R10 -> D2 Anode (Pin 2) -> D2 Kathode (Pin 1) -> U4 PG (Pin 10)`. D2 verwendet eine projektlokale Kopie des KiCad-Standardsymbols `LED_Small` mit `Sim.Pins` = `1=K 2=A`; das alte selbstgezeichnete KT-0603G-Symbol wird nicht mehr verwendet, weil Grafik und A/K-Anordnung missverstaendlich waren. In KiCad muss `PG` an D2-Kathode/Pin 1 liegen; eine Verbindung von `PG` zur D2-Anode waere falsch gepolt. R10 ist als **470R 1% / 0603 / JLC Basic / C23179** festgelegt; mit KT-0603G/C12624 (Vf 3.1V typ bei 5mA, 430mcd) ergibt das bei 3.3V typ. ca. 0.43mA und bei niedrigerer realer Vf grob 0.6mA bis 0.85mA, also schwach bis normal sichtbar ohne nennenswerte Last fuer CH224_VDD/PG.
+
 **Designator-Mapping zur Erzähl-/Konzeptbeschreibung weiter unten:** FB-Teiler = R3 (oben) / R4 (unten); RT-Widerstand = R1; OVP-Teiler = R5 (oben) / R6 (unten); Kompensations-C = C5; Bootstrap-C = C4. Überspannungsschutz ist final als **U3 TPS3700DDCR Fenster-Komparator** umgesetzt, nicht mehr über die früher skizzierte TLV431/LMV431+Treiber-Variante. Hinweis: Die früheren AP64500-Startwerte im Fließtext (FB 115.8k/22.1k) sind durch die verbauten 105k/20.0k ersetzt (exakt 5.000V bei Vref 0.8V).
 
 **Hinweis Überspannungsschutz U3:** TPS3700DDCR liefert eine präzise 400mV-Referenz mit Fenster-Komparator und zwei Open-Drain-Ausgängen; mit R5/R6 = 124k/10k löst die OVP bei ca. 5.36V aus und liegt damit im geforderten Fenster 5.35-5.45V. Eine externe Crowbar/SCR-Option mit vorgeschaltetem Abschaltelement bleibt optional.
 
-**Hinweis zentrale EingangseFuse U6:** U6 ist als TPS16630PWPR-Symbol mit TI-PWP/HTSSOP-20-Pinout im Schaltplan eingebettet. Die USB-C-VBUS-Pins von J3 liegen direkt auf F1-Pin 1; `VBUS` ist das abgesicherte Netz hinter F1 und verbindet F1-Pin 2, U4-VBUS/R9, R14 und U6-IN 1/2/3 plus P_IN 6. `VIN_BUCK` liegt auf U6-OUT 18/19/20 und versorgt den AP64500-Eingang sowie den oberen R11-Anschluss des AP64500-EN/UVLO-Teilers. Der Teiler ist `VIN_BUCK -> R11 -> BUCK_EN -> R12 -> GND`, sodass der Buck erst von der geschalteten U6-Ausgangsschiene freigegeben wird. GND 9 und PowerPAD 21 liegen auf Board-GND. `dVdT` ist nicht mehr hart mit GND verbunden, sondern ueber C16 22nF nach GND gefuehrt. `SHDN` liegt auf `EFUSE_SHDN`; U3-`OUTB` kann diesen Knoten low ziehen, R13 zieht ihn auf `CH224_VDD` hoch. `UVLO`/`OVP` werden vom R14/R15/R16-Teiler an `VBUS` versorgt; Startziel ist ungefaehr Einschalten nur oberhalb 12V und Abschalten unterhalb 20V-PD. R17 18k ist der ILIM-Startwert. `MODE` ist bewusst offen, weil TPS1663 laut Datenblatt damit nach begrenzter Current-Limit-Zeit latch-off ausloest; Reset erfolgt per SHDN-Toggle oder Power-Cycle. `IMON`, `PGOOD` und `FLT` sind optional noch offen. Vor PCB-Freigabe Werte, LCSC-C-Nummern, TPS16630PWPR-Verfuegbarkeit und CH224K-PG-Polaritaet erneut pruefen.
+**Hinweis zentrale EingangseFuse U6:** U6 ist als TPS16630PWPR/C1849461-Symbol mit TI-PWP/HTSSOP-20-Pinout im Schaltplan eingebettet. Die USB-C-VBUS-Pins von J3 liegen direkt auf F1-Pin 1; `VBUS` ist das abgesicherte Netz hinter F1 und verbindet F1-Pin 2, U4-VBUS/R9, R14 und U6-IN 1/2/3 plus P_IN 6. `VIN_BUCK` liegt auf U6-OUT 18/19/20 und versorgt den AP64500-Eingang sowie den oberen R11-Anschluss des AP64500-EN/UVLO-Teilers. Der Teiler ist `VIN_BUCK -> R11 -> BUCK_EN -> R12 -> GND`, sodass der Buck erst von der geschalteten U6-Ausgangsschiene freigegeben wird. GND 9 und PowerPAD 21 liegen auf Board-GND. `dVdT` ist nicht mehr hart mit GND verbunden, sondern ueber C16 22nF/C106222 nach GND gefuehrt. `SHDN` liegt auf `EFUSE_SHDN`; U3-`OUTB` kann diesen Knoten low ziehen, R13 zieht ihn auf `CH224_VDD` hoch. `UVLO`/`OVP` werden vom R14/R15/R16-Teiler an `VBUS` versorgt; Startziel ist ungefaehr Einschalten nur oberhalb 12V und Abschalten unterhalb 20V-PD. R17 18k/C114610 ist der ILIM-Startwert. `MODE` ist bewusst offen, weil TPS1663 laut Datenblatt damit nach begrenzter Current-Limit-Zeit latch-off ausloest; Reset erfolgt per SHDN-Toggle oder Power-Cycle. `IMON`, `PGOOD` und `FLT` sind optional noch offen. Vor PCB-Freigabe TPS16630PWPR-Verfuegbarkeit und Werte erneut pruefen.
 
 **Veraltete RT6318C-Ursprungs-BOM (NICHT mehr verwenden, nur Historie):** RT6318CGQUF C6288609, 1µH C15949, 10µF C440198, 47µF C178882, 22µF C45783, 150µF C12530, Post-LC 1.5µH/220µF, Shunt 0.03Ω C25110, SCR BT151 C2563, Z-Diode 5.6V C31673, Gate-R 1kΩ C17513. Diese Teile sind durch die obige AP64500-BOM ersetzt.
 
@@ -250,17 +326,19 @@ Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C6
 
 - **5V Zweig:**
 
-  - Ausgangsspannung: 5.0V ±3% (4.85V - 5.15V)
+  - Ausgangsspannung: praktisches Ziel **5.00V am C64-DIN-Stecker unter Last, ideal ±1%**. Der C64 funktioniert typischerweise nur sauber im Bereich **4.95V bis 5.05V**; ±3% ist daher nicht mehr das Qualitätsziel.
   - Ausgangsstrom: 3A kontinuierlich als C64-Zielwert; Regler thermisch mit Reserve auslegen
-  - Eingangsspannung: **15V/3A-PD fest vorgesehen**; 12V ist für 9VAC/2A ohne Boost/Trafo zu knapp, 20V-PD ist nicht mehr Zielbetrieb
+  - Eingangsspannung: **15V/3A-PD fest vorgesehen und einzige Energiequelle**; 12V ist für 9VAC/2A zu knapp, 20V-PD ist nicht mehr Zielbetrieb, ein Trafo- oder Zweitnetzteilpfad ist ausgeschlossen
   - Ripple: <40mV pp als Designziel; <50mV pp absolute Obergrenze nach C64-Vorgabe
 - **9V AC Zweig:**
 
   - Ausgangsspannung: 9V RMS
+  - Leerlaufspannung: maximal **10.3VAC RMS** (15% über 9VAC Nennspannung)
   - Frequenz: 50Hz oder 60Hz (konfiguierbar)
   - Ausgangsstrom: 2A kontinuierlich
   - Wellenform: Sinus (THD zu verifizieren)
-  - Leistungs-/Headroom-Prüfung: 9VAC/2A entspricht bis zu 18VA; synthetische Sinuserzeugung aus 12V DC ist ohne Boost/Trafo knapp, da 9Vrms ca. 12.7V Peak plus Verluste benötigt. 15V DC kann für eine Vollbrücken-Sinusendstufe reichen, muss aber mit Last, Filterverlusten, Modulationsreserve und Eingangsspannungstoleranz simuliert/gemessen werden.
+  - Pflichtabschaltung: **9VAC muss abgeschaltet werden, wenn keine 5V-Last entnommen wird**; diese Erkennung/Logik ist Teil der 9VAC-Architektur.
+  - Leistungs-/Headroom-Prüfung: 9VAC/2A entspricht bis zu 18VA; synthetische Sinuserzeugung aus 12V DC ist knapp, da 9Vrms ca. 12.7V Peak plus Verluste benötigt. 15V DC aus USB-C-PD kann für eine Vollbrücken-Sinusendstufe reichen, muss aber mit Last, Filterverlusten, Modulationsreserve und Eingangsspannungstoleranz simuliert/gemessen werden. Ein Trafo- oder Zweitnetzteilpfad ist keine zulässige Projektoption.
 
 ### Schutzfunktionen
 
@@ -299,7 +377,7 @@ Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C6
 
 #### 5V DC Zweig
 
-- [ ] **Spannungsregelung:** Präzise 5.0V ±3% am C64 unter allen Lastbedingungen, Zielbereich 0-3A plus Reserve
+- [ ] **Spannungsregelung:** Präzise 5.00V am C64-DIN-Stecker unter Last, ideal ±1%; typischer sauberer C64-Betriebsbereich 4.95V bis 5.05V, Zielbereich 0-3A plus Reserve
 - [ ] **Ripple minimieren:** <40mV pp am C64-DIN-Stecker als Zielwert erreichen; <50mV pp ist nur die absolute Obergrenze
 - [ ] **Soft-Start:** Einschaltstrom begrenzen, um Spannungsspitzen zu vermeiden
 - [ ] **Überspannungsschutz:** Crowbar-Schaltung MUSS bei >5.4V auslösen (VIC-II, SID empfindlich!)
@@ -310,9 +388,11 @@ Diese Tabelle ist die Quelle der Wahrheit und stimmt mit `Production/USB-PD-2-C6
 #### 9V AC Zweig
 
 - [ ] **Sinus-Reinheit:** THD <5% für CIA-Timer-Kompatibilität
+- [ ] **Leerlaufspannung:** 9VAC im Leerlauf maximal 10.3VAC RMS (15% über Nennspannung)
 - [ ] **Frequenzstabilität:** 50Hz oder 60Hz ±1% (Quarz-gesteuert empfohlen)
 - [ ] **Strombelastbarkeit:** 2A kontinuierlich ohne Überhitzung
-- [ ] **Galvanische Trennung:** Isolation zwischen DC-Zweig und AC-Zweig prüfen
+- [ ] **9VAC-Abschaltung:** 9VAC muss abgeschaltet werden, wenn keine 5V-Last entnommen wird
+- [ ] **USB-PD-only:** 9VAC ausschließlich aus der USB-C-PD-Versorgung erzeugen; kein Trafo- oder Zweitnetzteilpfad
 
 #### Allgemeine Schutzfunktionen
 

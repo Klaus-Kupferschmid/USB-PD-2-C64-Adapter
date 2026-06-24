@@ -1,6 +1,7 @@
 BOM for USB-PD-2-C64-Adapter - grouped by Baugruppe
 Matches schematic USB-PD-2-C64-Adapter.kicad_sch and JLC-ready CSV USB-PD-2-C64-Adapter_BOM.csv.
-Baugruppen: USB-PD Eingang, 5VDC, 9VAC. No 9VAC parts are placed yet.
+Baugruppen: USB-PD Eingang, 5VDC, 9VAC. The 9VAC power-stage has BOM-ready start values, but LC filter values, VREF/current regulation, THD, no-load voltage, and thermal behavior remain measurement-critical before PCB release.
+Project constraints: the adapter must use USB-C PD 15V/3A as its only energy source; transformer or second-supply paths are not project options. C64 DIN-7 pinout is documented in .github/copilot-instructions.md. The future 9VAC branch must be disabled when no 5V load is drawn and must stay at or below 10.3VAC RMS no-load.
 
 USB-PD Eingang
   J3  SHOU HAN TYPE-C16PIN USB-C receptacle 16P 30V 3A, USB-PD-2-C64-Adapter:TYPE-C16PIN_C393939, LCSC C393939
@@ -9,19 +10,19 @@ USB-PD Eingang
       NOTE: ESSOP-10 footprint checked against CH224DS1.pdf: 3.9mm body width, about 5.0mm body length, 6.0mm lead span, 1.00mm pitch; uses KiCad SSOP-10-1EP 3D model.
   U5  TI TPD2S300YFFR USB-C CC short-to-VBUS and IEC ESD protector, USB-PD-2-C64-Adapter:TPD2S300YFFR_DSBGA-9, LCSC C2650411
       NOTE: Active CC protector; 0.4mm-pitch YFF/DSBGA-9 with 0.23mm pads and local VRML 3D model. JLCPCB PCBA fine-pitch/BGA capability is plausible for assembly, but route with tight local rules and verify with JLC DFM; not hand-solder friendly.
-  U6  TI TPS16630PWPR central 15V input eFuse/load switch, Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm, LCSC TBD
-      NOTE: Gates VIN_BUCK and the future 9VAC branch from VIN_FUSED. LCSC C-number and UVLO/OVP/ILIM/dVdT values must be verified before PCB release.
-  C16 22nF X7R 50V U6 dVdT soft-start capacitor start value, Capacitor_SMD:C_0603_1608Metric, LCSC TBD
+  U6  TI TPS16630PWPR central 15V input eFuse/load switch, Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP3.0x4.2mm, LCSC C1849461
+      NOTE: Gates VIN_BUCK and the future 9VAC branch from VIN_FUSED. UVLO/OVP/ILIM/dVdT values must be verified before PCB release.
+  C16 22nF X7R 50V U6 dVdT soft-start capacitor start value, Capacitor_SMD:C_0603_1608Metric, LCSC C106222
   R8  56k 1% CH224K CFG1 15V request, Resistor_SMD:R_0603_1608Metric, LCSC C114630
   R9  1k 1% CH224K VDD feed, Resistor_SMD:R_1206_3216Metric, LCSC C131398
-  R10 2.2k 1% 15V PG LED resistor, Resistor_SMD:R_0603_1608Metric, LCSC C114662
+    R10 470R 1% 15V PG LED resistor, Resistor_SMD:R_0603_1608Metric, LCSC C23179
   R11 1M 1% AP64500 EN/UVLO top start value, Resistor_SMD:R_0603_1608Metric, LCSC C105578
   R12 100k 1% AP64500 EN/UVLO bottom start value, Resistor_SMD:R_0603_1608Metric, LCSC C14675
   R13 100k 1% U6 SHDN pull-up to CH224_VDD, Resistor_SMD:R_0603_1608Metric, LCSC C14675
   R14 274k 1% U6 UVLO/OVP divider top start value, Resistor_SMD:R_0603_1608Metric, LCSC C482818
   R15 7.68k 1% U6 UVLO/OVP divider middle start value, Resistor_SMD:R_0603_1608Metric, LCSC C163419
   R16 20.0k 1% U6 UVLO/OVP divider bottom start value, Resistor_SMD:R_0603_1608Metric, LCSC C844676
-  R17 18k 1% U6 ILIM resistor start value, Resistor_SMD:R_0603_1608Metric, LCSC TBD
+  R17 18k 1% U6 ILIM resistor start value, Resistor_SMD:R_0603_1608Metric, LCSC C114610
   C14 1uF X7R 25V CH224K VDD decoupling, Capacitor_SMD:C_0603_1608Metric, LCSC C29936
   C15 100nF X7R 50V TPD2S300 VBIAS support capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C14663
   D2  KT-0603G emerald green 0603 15V PD status LED, USB-PD-2-C64-Adapter:KT-0603G_C12624, LCSC C12624
@@ -47,9 +48,51 @@ USB-PD Eingang
   R4  20.0k 0.1% (FB bottom) -> Vout = 0.8V*(1+105/20) = 5.000V, Resistor_SMD:R_0603_1608Metric, LCSC C844676
   R5  124k 0.1% (OVP top), Resistor_SMD:R_0603_1608Metric, LCSC C861097
   R6  10k 0.1% (OVP bottom) -> TPS3700 trip ~5.36V, Resistor_SMD:R_0603_1608Metric, LCSC C844890
-  R7  33 (gate/series), Resistor_SMD:R_0603_1608Metric, LCSC C23140
+    R7  10mR 1% 3W 2512 5V load-sense shunt for INA180A2, Resistor_SMD:R_2512_6332Metric, LCSC C5375464
+      NOTE: Place in series between 5V_PROTECTED_SENSE and the C64 5V output path; route INA180 IN+/IN- Kelvin-near from the shunt pads.
+    U9  TI INA180A2IDBVR high-side current-sense amplifier, gain 50V/V, Package_TO_SOT_SMD:SOT-23-5, LCSC C192764
+      NOTE: Pinout A applies. IN+ on 5V_PROTECTED_SENSE side, IN- on DIN/load side after R7, OUT to ATtiny PA1/ADC.
+    C26 100nF X7R 50V INA180A2 local V+ decoupling, Capacitor_SMD:C_0603_1608Metric, LCSC C14663
   U3  TPS3700DDCR window comparator OVP (400mV ref, dual open-drain), Package_TO_SOT_SMD:SOT-23-6, LCSC C33002
-  J2  C64 DIN 5V pins, Connector_DIN:DIN-7, LCSC TBD
+    J2  HOOYA DIN-704-M10 C64 DIN-7 power out (1 GND_1, 2 GND_2, 3 GND_3, 4 5VDC_4, 5 5VDC_5, 6 9VAC_6, 7 9VAC_7), USB-PD-2-C64-Adapter:DIN-704-M10_C20611695, LCSC C20611695
+        NOTE: PCB-mounted DIN-7 start candidate. LCSC/EasyEDA pad topology matches the C64-Wiki relationship pin 1 between 4/6 and pin 3 between 5/7; still verify real pin orientation, footprint clearance, housing fit, current path, and the 0.8-scaled EasyEDA 3D model alignment before PCB release.
 
 9VAC
-  No parts placed yet.
+  U7  TI DRV8256PPWPR differential 9VAC H-bridge driver from VIN_BUCK, Package_SO:Texas_PWP0028V_TSSOP-28-1EP_4.4x9.7mm_P0.65mm_EP3.4x9.7mm_Mask2.94x5.62mm_ThermalVias, LCSC C3681352
+    NOTE: Drives the synthetic differential 9VAC branch between 9VAC_6 and 9VAC_7. Protection currently relies on U6 input eFuse plus DRV8256 current regulation/OCP/TSD and firmware shutdown; separate 9VAC output fuse/current measurement is not yet finalized.
+  U8  Microchip ATTINY412-SSNR SOIC-8 controller for sine PWM, nSLEEP sequencing, and 5V-load-based 9VAC enable, Package_SO:SOIC-8_3.9x4.9mm_P1.27mm, LCSC C1337190
+    NOTE: ATtiny runs from the 5V rail. PA1/ADC reads INA180A2 load-current signal; PA2 drives DRV8256 nSLEEP high only after stable 5V load detect and should pull it low on no-load/fault/shutdown.
+  C17 100nF 50V DRV8256 VM local ceramic decoupling, Capacitor_SMD:C_0603_1608Metric, LCSC C14663
+  C18 1uF 50V DRV8256 VM local ceramic decoupling, Capacitor_SMD:C_0805_2012Metric, LCSC C28323
+  C19 10uF 50V DRV8256 VM input ceramic capacitor, Capacitor_SMD:C_1210_3225Metric, LCSC C138687
+  C20 100uF 35V DRV8256 local VIN_BUCK bulk capacitor start value, Capacitor_SMD:CP_Elec_6.3x7.7, LCSC C19270709
+  C21 220nF X7R 50V DRV8256 VCP-to-VM charge pump capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C237192
+  C22 22nF X7R 50V DRV8256 CPH-to-CPL charge pump flying capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C106222
+  C23 1uF X7R 25V DRV8256 DVDD regulator decoupling capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C29936
+  R18,R19 33R DRV8256 IN1/IN2 series resistors from ATtiny PWM, Resistor_SMD:R_0603_1608Metric, LCSC C23140
+  R20 100k DRV8256 nSLEEP pulldown, Resistor_SMD:R_0603_1608Metric, LCSC C14675
+  R21 10k DRV8256 nFAULT pull-up, Resistor_SMD:R_0603_1608Metric, LCSC C844890
+  R22,R23 10k 1% DRV8256 VREF divider start value, Resistor_SMD:R_0603_1608Metric, LCSC C844890
+    NOTE: 10k/10k from DVDD to GND gives about 2.5V at VREF. With DRV8256 ITRIP = VREF/0.66 this is about 3.8A peak as a first current-regulation start value; verify with real LC filter and 9VAC load profile.
+  L2,L3 47uH 5A 9VAC differential LC output filter inductors start value, Inductor_SMD:L_10.4x10.4_H4.8, LCSC C7529419
+    NOTE: Start candidate only. Verify saturation, RMS heating, THD, PWM ripple, no-load <=10.3VAC RMS, and response at 0A/typical/2A load before PCB release.
+  C24 1uF X7R 50V differential output LC filter capacitor, Capacitor_SMD:C_1210_3225Metric, LCSC C445699
+  C25 100nF X7R 50V ATtiny412 VCC local decoupling, Capacitor_SMD:C_0603_1608Metric, LCSC C14663
+  C27 1uF X7R 50V optional parallel tuning capacitor, same footprint/LCSC C445699, DNP for the first 1uF prototype population; populate only for a 2uF filter test.
+  J4 50/60Hz selection 2-pin 2.54mm header, Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical, DNP.
+  J5 UPDI programming 3-pin 2.54mm header, Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical, DNP.
+  JP1 DRV8256 DECAY solder jumper, Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm, DNP/no fitted part.
+  U10 TI SN74LVC2G132DCTR dual Schmitt NAND for delayed DRV8256 nFAULT latch, Package_SO:VSSOP-8_3x3mm_P0.65mm, LCSC C2870897
+    NOTE: It runs from CH224_VDD_3V3, not DRV8256 DVDD, because DVDD disappears in sleep.
+  Q1 2N7002DW-7-F dual N-channel MOSFET array for latched nSLEEP pulldown and red fault LED sink, Package_TO_SOT_SMD:SOT-363_SC-70-6, LCSC C83571
+  D3 KT-0603R red 0603 fault indicator LED, LED_SMD:LED_0603_1608Metric, LCSC C2286
+  D4 1N4148W SOD-123 switching diode for nFAULT delay-capacitor fast recharge after fault clear, Diode_SMD:D_SOD-123, LCSC C81598
+  R24,R28 4.7k 1% 0603 resistors for ATtiny PA2 series isolation and red fault LED current limit, Resistor_SMD:R_0603_1608Metric, LCSC C23162
+  R25,R26 100k 1% 0603 resistors for nFAULT delay and power-on reset pull-up, Resistor_SMD:R_0603_1608Metric, LCSC C14675
+  R27 1k 1% 0603 gate resistor from latch output to Q1 gate, Resistor_SMD:R_0603_1608Metric, LCSC C21190
+  C28 1uF X7R 25V nFAULT delay capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C29936
+  C29 100nF X7R 50V fault latch power-on reset capacitor, Capacitor_SMD:C_0603_1608Metric, LCSC C14663
+    NOTE: The chosen protection action is local: latch a sustained DRV8256 nFAULT and pull DRV8256 nSLEEP low. Do not connect this latch directly to EFUSE_SHDN.
+  Future implementation must generate 9VAC only from the U6-switched 15V USB-C PD rail.
+    Architecture decision: synthetic differential sine output between DIN pins 6 and 7 using a full-bridge/H-bridge, not a single-ended AC node referenced to GND.
+    Required controls: 5V-load-dependent 9VAC shutdown, no-load voltage <=10.3VAC RMS, output amplitude measurement/regulation, THD verification, thermal/current protection, and combined 45W input-budget validation.

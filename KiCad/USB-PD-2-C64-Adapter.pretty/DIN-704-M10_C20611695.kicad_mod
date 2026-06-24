@@ -1,0 +1,190 @@
+(footprint "DIN-704-M10_C20611695"
+	(version 20240108)
+	(generator "hand")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "HOOYA DIN-704-M10 / LCSC C20611695 right-angle 7-pin DIN female connector. Start footprint derived from LCSC/EasyEDA CONN-TH_DIN-704-M10 pad topology; verify against real part and C64 socket outside-view pin numbering before PCB release.")
+	(tags "DIN DIN-7 C64 power connector HOOYA C20611695")
+	(attr through_hole)
+	(fp_text reference "REF**"
+		(at 0 -9.2 0)
+		(layer "F.SilkS")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text value "DIN-704-M10_C20611695"
+		(at 0 9.4 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_rect
+		(start -8.4 -7.2)
+		(end 8.4 7.9)
+		(stroke (width 0.1) (type solid))
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -8.4 -7.2)
+		(end 8.4 -7.2)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -8.4 7.9)
+		(end 8.4 7.9)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start -8.4 -7.2)
+		(end -8.4 7.9)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_line
+		(start 8.4 -7.2)
+		(end 8.4 7.9)
+		(stroke (width 0.12) (type solid))
+		(layer "F.SilkS")
+	)
+	(fp_circle
+		(center 7.4 -1.88)
+		(end 7.6 -1.88)
+		(stroke (width 0.2) (type solid))
+		(fill solid)
+		(layer "F.SilkS")
+	)
+	(fp_text user "1 GND_1"
+		(at 7.8 -1.88 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify left)
+		)
+	)
+	(fp_text user "2 GND_2"
+		(at 1.45 -1.88 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify left)
+		)
+	)
+	(fp_text user "3 GND_3"
+		(at -7.8 -1.88 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify right)
+		)
+	)
+	(fp_text user "4 5VDC_4"
+		(at 5.45 -3.72 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify left)
+		)
+	)
+	(fp_text user "5 5VDC_5"
+		(at -5.45 -3.72 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify right)
+		)
+	)
+	(fp_text user "6 9VAC_6"
+		(at 7.8 -5.88 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify left)
+		)
+	)
+	(fp_text user "7 9VAC_7"
+		(at -7.8 -5.88 0)
+		(layer "F.Fab")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.1))
+			(justify right)
+		)
+	)
+	(fp_rect
+		(start -8.9 -7.7)
+		(end 8.9 8.4)
+		(stroke (width 0.05) (type solid))
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(pad "1" thru_hole circle
+		(at 6 -1.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "2" thru_hole circle
+		(at 0 -1.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "3" thru_hole circle
+		(at -6 -1.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "4" thru_hole circle
+		(at 4 -3.72)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "5" thru_hole circle
+		(at -4 -3.72)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "6" thru_hole circle
+		(at 6 -5.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "7" thru_hole circle
+		(at -6 -5.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "" thru_hole circle
+		(at -4 5.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(pad "" thru_hole circle
+		(at 4 5.88)
+		(size 1.84 1.84)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+	)
+	(model "${KIPRJMOD}/USB-PD-2-C64-Adapter.3dshapes/CONN-TH_DIN-704-M10.step"
+		(offset (xyz 0 0 0))
+		(scale (xyz 0.8 0.8 0.8))
+		(rotate (xyz 0 0 0))
+	)
+)

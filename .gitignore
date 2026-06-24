@@ -18,3 +18,4 @@ Thumbs.db
 
 # Gerber/Production temp files (keep Production folder, ignore temp)
 *.tmp
+KiCad/TMP/
